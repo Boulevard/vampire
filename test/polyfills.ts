@@ -1,0 +1,1 @@
+import '@webcomponents/custom-elements';

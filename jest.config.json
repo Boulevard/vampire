@@ -1,0 +1,11 @@
+{
+  "globals": {
+    "ts-jest": {
+      "tsConfig": "test/tsconfig.test.json"
+    }
+  },
+  "preset": "ts-jest/presets/js-with-ts",
+  "rootDir": "test",
+  "setupFilesAfterEnv": ["./polyfills.ts"],
+  "testEnvironment": "jest-environment-jsdom-fourteen"
+}

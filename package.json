@@ -1,0 +1,32 @@
+{
+  "name": "@boulevard/vampire",
+  "version": "1.0.0-alpha.1",
+  "description": "Shadowless slots.",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc && cp src/vampire.css dist",
+    "prebuild": "yarn run test",
+    "prepublish": "yarn run build",
+    "test": "jest --config jest.config.json",
+    "test-debug": "node --inspect-brk $(npm bin)/jest --runInBand --config jest.config.json"
+  },
+  "author": "Daniel Nagy <dan@joinboulevard.com>",
+  "repository": "github:Boulevard/vampire",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "@webcomponents/custom-elements": "^1.2.4",
+    "jest": "^24.7.1",
+    "jest-environment-jsdom-fourteen": "^0.1.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "<3.3.0"
+  }
+}
