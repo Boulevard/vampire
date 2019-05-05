@@ -1,15 +1,11 @@
-# Vampire
+# Vampire 🧛‍♂️
 
 Slots without shadows.
 
-* [License](#license)
 * [Installation](#installation)
-* [Example](#example)
-
-## License
-
-This software is provided free of charge and without restriction under the
-[MIT License](LICENSE.md).
+* [Examples](#examples)
+* [API Documentation](#api-documentation)
+* [Caveats](#caveats)
 
 ## Installation
 
@@ -19,10 +15,44 @@ This module is installable through npm.
 npm install --save @boulevard/vampire
 ```
 
-## Example
+## Examples
 
-This example uses LitElement; however, LitElement is not required to use this
-module.
+#### Basic Example
+
+This example demonstrates moving content to a nameless slot.
+
+```typescript
+const div = Object.assign(document.createElement('div'), {
+  innerHTML: `
+    <v-root>
+      <h4>Example</h4>
+      <v-slot></v-slot>
+    </v-root>
+  `
+};
+
+div.appendChild(document.createTextNode('👻'));
+```
+
+The above script will produce the following output.
+
+```html
+<div>
+  <v-root>
+    <h4>Example</h4>
+    <v-slot>
+      <v-slot-assigned-content>
+        👻
+      </v-slot-assigned-content>
+    </v-slot>
+  </v-root>
+</div>
+```
+
+#### Example Using LitElement
+
+Slots are most useful when combined with custom elements. This is example shows
+how easy it is to use Vampire with LitElement.
 
 ```typescript
 import '@boulevard/vampire';
@@ -56,7 +86,7 @@ export class ExampleElement extends WithSlots(LitElement) {
 }
 ```
 
-Given the following markup
+Given the following markup.
 
 ```html
 <x-example>
@@ -78,3 +108,92 @@ The above component will produce the following output when rendered.
   </v-root>
 <x-example>
 ```
+
+## API Documentation
+
+### VampireRoot
+
+A `VampireRoot` is the root node of a DOM subtree.
+
+### VampireSlot
+
+A `VampireSlot` marks the insertion point of foreign content.
+
+#### Properties
+
+```typescript
+VampireSlot::name: string = '';
+```
+
+A slot may be given a name so that it can be targeted.
+
+#### Methods
+
+```typescript
+VampireSlot::assignedElements(options?: {flatten?: boolean}): Element[];
+```
+
+Returns the elements assigned to this slot. If the `flatten` option is set to
+`true` it will return fallback content if, and only if, there is no assigned
+content, otherwise it will still return the assigned content.
+
+```typescript
+VampireSlot::assignedNodes(options?: {flatten?: boolean}): Node[];
+```
+
+Returns the nodes assigned to this slot. If the `flatten` option is set to
+`true` it will return fallback content if, and only if, there is no assigned
+content, otherwise it will still return the assigned content.
+
+**Example**
+
+```html
+<div>
+  <v-root>
+    <v-slot></v-slot>
+    <v-slot name="second-slot"></v-slot>
+  </v-root>
+  <div>This will be moved to the default slot</div>
+  <div v-slot="second-slot">This will be moved to the second slot.</div>
+</div>
+```
+
+#### Events
+
+```typescript
+interface ISlotChangeEvent extends CustomEvent {
+  readonly type = 'v::slotchange';
+  readonly bubbles = true;
+}
+```
+
+The `v::slotchange` event is fired when the slot's assigned content changes.
+
+**Example**
+
+```typescript
+slot.addEventListener('v::slotchange', (event: Event) => {
+  console.log(event.target.assignedNodes());
+});
+```
+
+### VampireSlotFallbackContent
+
+Allows fallback content to be assigned to a slot.
+
+**Example**
+
+```html
+<v-slot>
+  <v-slot-fallback-content>
+    This will be rendered if no content is assigned to this slot.
+  </v-slot-fallback-content>
+</v-slot>
+```
+
+### Caveats
+
+* A `VampireRoot` cannot be a direct ancestor of a `VampireRoot`.
+* Empty `Text` nodes will be assign to a slot and will prevent fallback content
+from being rendered.
+* Fallback content cannot contain more slots.
