@@ -110,6 +110,10 @@ The above component will produce the following output when rendered.
 <x-example>
 ```
 
+#### Simple Todo List App
+
+https://stackblitz.com/edit/typescript-uykxn4
+
 ## API Documentation
 
 Vampire is distributed in ES2015 module format.
