@@ -8,6 +8,13 @@ import { render, scheduleMicroTask, template } from './utils';
  * element.
  */
 
+afterEach(() => {
+  // Need to remove the element before the end of the test so that `document`
+  // is still defined when the element's disconnected lifecycle method is
+  // called.
+  Array.from(document.body.children).forEach(child => child.remove());
+});
+
 test('Slotting content to a nameless slot.', async () => {
   render(document.body, template`
     <div id="test"><v-root>
@@ -29,11 +36,6 @@ test('Slotting content to a nameless slot.', async () => {
 
   expect(assignedNodes).toContain(node0);
   expect(assignedNodes).toContain(node1);
-
-  // Need to remove the element before the end of the test so that `document`
-  // is still defined with the element's disconnected lifecycle method is
-  // called.
-  element.remove();
 });
 
 test('Slotting content to a named slot.', async () => {
@@ -60,7 +62,6 @@ test('Slotting content to a named slot.', async () => {
 
   expect(assignedNodes).not.toContain(node0);
   expect(assignedNodes).toContain(node1);
-  element.remove();
 });
 
 test('Rendering fallback contnet.', () => {
@@ -78,7 +79,6 @@ test('Rendering fallback contnet.', () => {
   const assignedNodes = slot.assignedNodes({flatten: true});
 
   expect(assignedNodes).toContain(fallbackContent.firstChild);
-  element.remove();
 });
 
 test('Rendering fallback contnet after slotted content is removed.', async () => {
@@ -108,7 +108,6 @@ test('Rendering fallback contnet after slotted content is removed.', async () =>
   assignedNodes = slot.assignedNodes({flatten: true});
 
   expect(assignedNodes).toContain(fallbackContent.firstChild);
-  element.remove();
 });
 
 test('Dispatching an event on slot change.', async () => {
@@ -131,7 +130,6 @@ test('Dispatching an event on slot change.', async () => {
   await scheduleMicroTask();
 
   expect(onSlotChange).toHaveBeenCalledTimes(2);
-  element.remove();
 });
 
 test('Nested roots.', async () => {
@@ -159,7 +157,6 @@ test('Nested roots.', async () => {
 
   expect(slot0.assignedNodes()).toContain(node0);
   expect(slot1.assignedNodes()).toContain(node1);
-  element.remove();
 });
 
 test('Slots inside of fallback content are ignored.', async () => {
@@ -182,7 +179,6 @@ test('Slots inside of fallback content are ignored.', async () => {
   await scheduleMicroTask();
 
   expect(slot0.assignedNodes()).toContain(node0);
-  element.remove();
 });
 
 
@@ -203,7 +199,6 @@ test('Removing a slot will return its content to the parent of the root.', async
   slot.remove();
   await scheduleMicroTask();
   expect(node0.parentElement).toBe(element);
-  element.remove();
 });
 
 test('The number of assigned nodes and elements of a slot.', async () => {
@@ -240,5 +235,4 @@ test('The number of assigned nodes and elements of a slot.', async () => {
   expect(numberOfAssignedNodesFlattened).toEqual(numberOfAssignedNodes);
   expect(numberOfAssignedElements).toBe(1);
   expect(numberOfAssignedElementsFlattend).toEqual(numberOfAssignedElements);
-  element.remove();
 });
