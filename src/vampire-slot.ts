@@ -17,7 +17,6 @@ export class VampireSlot extends HTMLElement {
 
     this._assignedContent = document.createElement(VampireSlotAssignedContent.tagName);
     this._assignedContent.classList.add(VampireSlotAssignedContent.Classes.Hidden);
-    this.appendChild(this._assignedContent);
 
     const observer = new MutationObserver(() => {
       const hidden = this._assignedContent.childNodes.length === 0;
@@ -32,6 +31,10 @@ export class VampireSlot extends HTMLElement {
   }
 
   connectedCallback() {
+    if (!this._assignedContent.parentElement) {
+      this.appendChild(this._assignedContent);
+    }
+
     this._vampireRoot = this._getVampireRoot();
 
     if (!this._vampireRoot) {

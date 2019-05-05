@@ -1,11 +1,14 @@
 {
+  "collectCoverageFrom": ["<rootDir>/src/**/*.ts"],
+  "coverageDirectory": "<rootDir>/test",
   "globals": {
     "ts-jest": {
-      "tsConfig": "test/tsconfig.test.json"
+      "tsConfig": "<rootDir>/test/tsconfig.test.json"
     }
   },
   "preset": "ts-jest/presets/js-with-ts",
-  "rootDir": "test",
-  "setupFilesAfterEnv": ["./polyfills.ts"],
+  "rootDir": ".",
+  "roots": ["<rootDir>/test", "<rootDir>/src"],
+  "setupFilesAfterEnv": ["<rootDir>/test/polyfills.ts"],
   "testEnvironment": "jest-environment-jsdom-fourteen"
 }

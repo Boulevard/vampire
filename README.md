@@ -32,13 +32,16 @@ import { customElement, html, LitElement } from 'lit-element';
 const WithSlots = (BaseClass: typeof LitElement) => class extends BaseClass {
   static render = render;
 
-  constructor() {
-    super();
-    this.appendChild(this.renderRoot);
-  }
-
   createRenderRoot() {
     return document.createElement('v-root');
+  }
+
+  connectedCallback() {
+    if (!this.renderRoot.parentElement) {
+      this.appendChild(this.renderRoot);
+    }
+
+    super.connectedCallback();
   }
 }
 

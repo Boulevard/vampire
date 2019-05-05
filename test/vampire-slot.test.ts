@@ -1,102 +1,244 @@
-import '../src/vampire-root';
-import '../src/vampire-slot';
+import '../src';
+import { VampireSlot } from '../src';
+import { render, scheduleMicroTask, template } from './utils';
 
-import { VampireRoot, VampireSlot, VampireSlotFallbackContent } from '../src';
-import { scheduleMicroTask } from './utils';
+/**
+ * The ugly template formatting is because empty Text nodes will be slotted.
+ * Therefore, there can't be any spaces or new lines before or after a <v-root>
+ * element.
+ */
 
-class ElementWithSlots extends HTMLElement {
+test('Slotting content to a nameless slot.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot></v-slot>
+    </v-root></div>
+  `);
 
-  lightRoot: VampireRoot = document.createElement('v-root');
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot')!;
+  const node0 = document.createElement('div');
+  const node1 = document.createElement('div');
 
-  constructor() {
-    super();
-    this.appendChild(this.lightRoot);
-  }
+  element.appendChild(node0);
+  element.appendChild(node1);
 
-  connectedCallback() {
-    debugger;
-    this.render();
-  }
+  await scheduleMicroTask();
 
-  render() {
-    this.lightRoot.innerHTML = `
-      <v-slot>
-        <v-slot-fallback-content>
-          👻
-        </v-slot-fallback-content>
-      </v-slot>
-    `;
-  }
-}
+  const assignedNodes = slot.assignedNodes();
 
-customElements.define('element-with-slots', ElementWithSlots);
+  expect(assignedNodes).toContain(node0);
+  expect(assignedNodes).toContain(node1);
 
-test('Upgrading a VampireSlot element.', () => {
-  const lightSlot = document.createElement('v-slot');
-  expect(lightSlot).toBeInstanceOf(VampireSlot);
+  // Need to remove the element before the end of the test so that `document`
+  // is still defined with the element's disconnected lifecycle method is
+  // called.
+  element.remove();
 });
 
-describe('Slotting Content', () => {
+test('Slotting content to a named slot.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot></v-slot>
+      <v-slot name="test"></v-slot>
+    </v-root></div>
+  `);
 
-  test('Slotting content to a nameless slot.', async () => {
-    const elementWithSlots = document.createElement('element-with-slots');
-    document.body.appendChild(elementWithSlots);
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot[name="test"]')! as VampireSlot;
+  const node0 = document.createElement('div');
+  const node1 = document.createElement('div');
 
-    const slot = elementWithSlots.querySelector('v-slot:not([name])') as VampireSlot;
-    const node0 = document.createElement('div');
-    const node1 = document.createElement('div');
+  node1.setAttribute('v-slot', 'test');
 
-    elementWithSlots.appendChild(node0);
-    elementWithSlots.appendChild(node1);
+  element.appendChild(node0);
+  element.appendChild(node1);
 
-    await scheduleMicroTask();
+  await scheduleMicroTask();
 
-    const assignedNodes = slot.assignedNodes();
+  const assignedNodes = slot.assignedNodes();
 
-    expect(assignedNodes).toContain(node0);
-    expect(assignedNodes).toContain(node1);
+  expect(assignedNodes).not.toContain(node0);
+  expect(assignedNodes).toContain(node1);
+  element.remove();
+});
 
-    // Need to remove the element before the end of the test so that `document`
-    // is still defined with the element's disconnected lifecycle method is
-    // called.
-    elementWithSlots.remove();
-  });
+test('Rendering fallback contnet.', () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot>
+        <v-slot-fallback-content>Test</v-slot-fallback-content>
+      </v-slot>
+    </v-root></div>
+  `);
 
-  describe('Fallback Content', () => {
-    test('Rendering fallback contnet.', () => {
-      const elementWithSlots = document.createElement('element-with-slots');
-      document.body.appendChild(elementWithSlots);
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot')!;
+  const fallbackContent = slot.querySelector('v-slot-fallback-content')!;
+  const assignedNodes = slot.assignedNodes({flatten: true});
 
-      const slot = elementWithSlots.querySelector('v-slot:not([name])') as VampireSlot;
-      const fallbackContent = slot.querySelector('v-slot-fallback-content') as VampireSlotFallbackContent;
+  expect(assignedNodes).toContain(fallbackContent.firstChild);
+  element.remove();
+});
 
-      expect(slot.assignedNodes({flatten: true})).toContain(fallbackContent.firstChild);
-      elementWithSlots.remove();
-    });
+test('Rendering fallback contnet after slotted content is removed.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot>
+        <v-slot-fallback-content>Test</v-slot-fallback-content>
+      </v-slot>
+    </v-root></div>
+  `);
 
-    test('Rendering fallback contnet after slotted content is removed.', async () => {
-      const elementWithSlots = document.createElement('element-with-slots');
-      document.body.appendChild(elementWithSlots);
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot')!;
+  const fallbackContent = slot.querySelector('v-slot-fallback-content')!;
+  const node0 = document.createElement('div');
 
-      const slot = elementWithSlots.querySelector('v-slot:not([name])') as VampireSlot;
-      const fallbackContent = slot.querySelector('v-slot-fallback-content') as VampireSlotFallbackContent;
-      const node0 = document.createElement('div');
+  element.appendChild(node0);
 
-      expect(slot.assignedNodes({flatten: true})).toContain(fallbackContent.firstChild);
+  await scheduleMicroTask();
 
-      elementWithSlots.appendChild(node0);
+  let assignedNodes = slot.assignedNodes({flatten: true});
 
-      await scheduleMicroTask();
+  expect(assignedNodes).toContain(node0);
+  expect(assignedNodes).not.toContain(fallbackContent.firstChild);
 
-      const assignedNodes = slot.assignedNodes({flatten: true});
+  node0.remove();
+  assignedNodes = slot.assignedNodes({flatten: true});
 
-      expect(assignedNodes).toContain(node0);
-      expect(assignedNodes).not.toContain(fallbackContent.firstChild);
+  expect(assignedNodes).toContain(fallbackContent.firstChild);
+  element.remove();
+});
 
-      node0.remove();
+test('Dispatching an event on slot change.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot></v-slot>
+    </v-root></div>
+  `);
 
-      expect(slot.assignedNodes({flatten: true})).toContain(fallbackContent.firstChild);
-      elementWithSlots.remove();
-    });
-  });
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot')!;
+  const node0 = document.createElement('div');
+  const onSlotChange = jest.fn();
+
+  slot.addEventListener(VampireSlot.Events.SlotChange, onSlotChange);
+
+  element.appendChild(node0);
+  await scheduleMicroTask();
+  node0.remove();
+  await scheduleMicroTask();
+
+  expect(onSlotChange).toHaveBeenCalledTimes(2);
+  element.remove();
+});
+
+test('Nested roots.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root id="root-0">
+      <v-slot></v-slot>
+      <div><v-root id="root-1">
+        <v-slot></v-slot>
+      </v-root></div>
+    </v-root></div>
+  `);
+
+  const element = document.getElementById('test')!;
+  const root0 = document.getElementById('root-0')!;
+  const root1 = document.getElementById('root-1')!;
+  const slot0 = root0.querySelector(':scope > v-slot')! as VampireSlot;
+  const slot1 = root1.querySelector(':scope > v-slot')! as VampireSlot;
+  const node0 = document.createElement('div');
+  const node1 = document.createElement('div');
+
+  element.appendChild(node0);
+  root1.parentElement!.appendChild(node1);
+
+  await scheduleMicroTask();
+
+  expect(slot0.assignedNodes()).toContain(node0);
+  expect(slot1.assignedNodes()).toContain(node1);
+  element.remove();
+});
+
+test('Slots inside of fallback content are ignored.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot id="slot-0">
+        <v-slot-fallback-content>
+          <v-slot></v-slot>
+        </v-slot-fallback-content>
+      </v-slot>
+    </v-root></div>
+  `);
+
+  const element = document.getElementById('test')!;
+  const slot0 = document.getElementById('slot-0')! as VampireSlot;
+  const node0 = document.createElement('div');
+
+  element.appendChild(node0);
+
+  await scheduleMicroTask();
+
+  expect(slot0.assignedNodes()).toContain(node0);
+  element.remove();
+});
+
+
+test('Removing a slot will return its content to the parent of the root.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot></v-slot>
+    </v-root></div>
+  `);
+
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot')!;
+  const node0 = document.createElement('div');
+
+  element.appendChild(node0);
+  await scheduleMicroTask();
+  expect(slot.assignedNodes()).toContain(node0);
+  slot.remove();
+  await scheduleMicroTask();
+  expect(node0.parentElement).toBe(element);
+  element.remove();
+});
+
+test('The number of assigned nodes and elements of a slot.', async () => {
+  render(document.body, template`
+    <div id="test"><v-root>
+      <v-slot>
+        <v-slot-fallback-content>
+          Text
+          <div></div>
+        </v-slot-fallback-content>
+      </v-slot>
+    </v-root></div>
+  `);
+
+  const element = document.getElementById('test')!;
+  const slot = element.querySelector('v-slot')!;
+
+  expect(slot.assignedNodes().length).toBe(0);
+  expect(slot.assignedNodes({flatten: true}).length).toBe(3);
+  expect(slot.assignedElements().length).toBe(0);
+  expect(slot.assignedElements({flatten: true}).length).toBe(1);
+
+  const node = document.createElement('div');
+  element.appendChild(node);
+
+  await scheduleMicroTask();
+
+  const numberOfAssignedNodes = slot.assignedNodes().length;
+  const numberOfAssignedNodesFlattened = slot.assignedNodes({flatten: true}).length;
+  const numberOfAssignedElements = slot.assignedElements().length;
+  const numberOfAssignedElementsFlattend = slot.assignedElements({flatten: true}).length;
+
+  expect(numberOfAssignedNodes).toBe(1);
+  expect(numberOfAssignedNodesFlattened).toEqual(numberOfAssignedNodes);
+  expect(numberOfAssignedElements).toBe(1);
+  expect(numberOfAssignedElementsFlattend).toEqual(numberOfAssignedElements);
+  element.remove();
 });
