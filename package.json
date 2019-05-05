@@ -1,6 +1,6 @@
 {
   "name": "@boulevard/vampire",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Shadowless slots.",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -11,7 +11,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc && cp src/vampire.css dist",
+    "build": "tsc",
     "clean": "rm -rf dist",
     "prebuild": "yarn run test && yarn run clean",
     "prepublish": "yarn run build",

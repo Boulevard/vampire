@@ -5,6 +5,7 @@ Slots without shadows.
 * [Installation](#installation)
 * [Examples](#examples)
 * [API Documentation](#api-documentation)
+* [Browser Support](#browser-Support)
 * [Caveats](#caveats)
 
 ## Installation
@@ -111,6 +112,8 @@ The above component will produce the following output when rendered.
 
 ## API Documentation
 
+Vampire is distributed in ES2015 module format.
+
 ### VampireRoot
 
 A `VampireRoot` is the root node of a DOM subtree.
@@ -191,9 +194,19 @@ Allows fallback content to be assigned to a slot.
 </v-slot>
 ```
 
-### Caveats
+## Browser Support
+
+The last 2 versions of all modern browsers are supported. In addition, IE 11 is
+also supported.
+
+IE 11 requires a custom elements polyfill as well as a `CustomEvent` constructor
+polyfill.
+
+## Caveats
 
 * A `VampireRoot` cannot be a direct ancestor of a `VampireRoot`.
 * Empty `Text` nodes will be assign to a slot and will prevent fallback content
 from being rendered.
 * Fallback content cannot contain more slots.
+* IE and Edge do not support `display: contents`. If you need to support these
+browsers you'll need to account for the extra elements when doing layout.
