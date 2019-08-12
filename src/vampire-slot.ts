@@ -138,4 +138,6 @@ declare global {
   }
 }
 
-customElements.define(VampireSlot.tagName, VampireSlot);
+if (!customElements.get(VampireSlot.tagName)) {
+  customElements.define(VampireSlot.tagName, VampireSlot);
+}
