@@ -22,17 +22,20 @@ npm install --save @boulevard/vampire
 
 This example demonstrates moving content to a nameless slot.
 
-```typescript
-const div = Object.assign(document.createElement('div'), {
-  innerHTML: `
-    <v-root>
-      <h4>Example</h4>
-      <v-slot></v-slot>
-    </v-root>
-  `
-};
+```html
+<script type="module" src="https://unpkg.com/@boulevard/vampire@1.0.0-beta.2/dist/index.js"></script>
+<script>
+  const div = Object.assign(document.createElement('div'), {
+    innerHTML: `
+      <v-root>
+        <h4>Example</h4>
+        <v-slot></v-slot>
+      </v-root>
+    `
+  });
 
-div.appendChild(document.createTextNode('👻'));
+  div.appendChild(document.createTextNode('👻'));
+</script>
 ```
 
 The above script will produce the following output.
