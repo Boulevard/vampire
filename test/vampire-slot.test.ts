@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import '../src';
-import { VampireSlot } from '../src';
+import { VampireSlot, VampireSlotEvents } from '../src';
 import { render, scheduleMicroTask, template } from './utils';
 
 /**
@@ -23,7 +24,7 @@ test('Slotting content to a nameless slot.', async () => {
   `);
 
   const element = document.getElementById('test')!;
-  const slot = element.querySelector('v-slot')!;
+  const slot = element.querySelector('v-slot')! as VampireSlot;
   const node0 = document.createElement('div');
   const node1 = document.createElement('div');
 
@@ -74,7 +75,7 @@ test('Rendering fallback contnet.', () => {
   `);
 
   const element = document.getElementById('test')!;
-  const slot = element.querySelector('v-slot')!;
+  const slot = element.querySelector('v-slot')! as VampireSlot;
   const fallbackContent = slot.querySelector('v-slot-fallback-content')!;
   const assignedNodes = slot.assignedNodes({flatten: true});
 
@@ -91,7 +92,7 @@ test('Rendering fallback contnet after slotted content is removed.', async () =>
   `);
 
   const element = document.getElementById('test')!;
-  const slot = element.querySelector('v-slot')!;
+  const slot = element.querySelector('v-slot')! as VampireSlot;
   const fallbackContent = slot.querySelector('v-slot-fallback-content')!;
   const node0 = document.createElement('div');
 
@@ -122,7 +123,7 @@ test('Dispatching an event on slot change.', async () => {
   const node0 = document.createElement('div');
   const onSlotChange = jest.fn();
 
-  slot.addEventListener(VampireSlot.Events.SlotChange, onSlotChange);
+  slot.addEventListener(VampireSlotEvents.SlotChange, onSlotChange);
 
   element.appendChild(node0);
   await scheduleMicroTask();
@@ -190,7 +191,7 @@ test('Removing a slot will return its content to the parent of the root.', async
   `);
 
   const element = document.getElementById('test')!;
-  const slot = element.querySelector('v-slot')!;
+  const slot = element.querySelector('v-slot')! as VampireSlot;
   const node0 = document.createElement('div');
 
   element.appendChild(node0);
@@ -214,7 +215,7 @@ test('The number of assigned nodes and elements of a slot.', async () => {
   `);
 
   const element = document.getElementById('test')!;
-  const slot = element.querySelector('v-slot')!;
+  const slot = element.querySelector('v-slot')! as VampireSlot;
 
   expect(slot.assignedNodes().length).toBe(0);
   expect(slot.assignedNodes({flatten: true}).length).toBe(3);

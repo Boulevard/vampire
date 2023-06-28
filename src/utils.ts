@@ -1,5 +1,5 @@
 export function toggleClass(element: HTMLElement, className: string, state?: boolean): boolean {
-  let addClass = typeof state === 'boolean'
+  const addClass = typeof state === 'boolean'
     ? state
     : !element.classList.contains(className);
 

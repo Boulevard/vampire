@@ -1,7 +1,11 @@
 import { VampireRoot } from './vampire-root';
-import { VampireSlotAssignedContent } from './vampire-slot-assigned-content';
+import { VampireSlotAssignedContent, VampireSlotAssignedContentClasses } from './vampire-slot-assigned-content';
 import { VampireSlotFallbackContent } from './vampire-slot-fallback-content';
 import { toggleClass } from './utils';
+
+export enum VampireSlotEvents {
+  SlotChange = 'v::slotchange'
+}
 
 export class VampireSlot extends HTMLElement {
   static readonly tagName = 'v-slot';
@@ -16,13 +20,13 @@ export class VampireSlot extends HTMLElement {
     super();
 
     this._assignedContent = document.createElement(VampireSlotAssignedContent.tagName);
-    this._assignedContent.classList.add(VampireSlotAssignedContent.Classes.Hidden);
+    this._assignedContent.classList.add(VampireSlotAssignedContentClasses.hidden);
 
     const observer = new MutationObserver(() => {
       const hidden = this._assignedContent.childNodes.length === 0;
 
-      toggleClass(this._assignedContent, VampireSlotAssignedContent.Classes.Hidden, hidden);
-      this.dispatchEvent(new CustomEvent(VampireSlot.Events.SlotChange, {
+      toggleClass(this._assignedContent, VampireSlotAssignedContentClasses.hidden, hidden);
+      this.dispatchEvent(new CustomEvent(VampireSlotEvents.SlotChange, {
         bubbles: true
       }));
     });
@@ -126,16 +130,16 @@ export class VampireSlot extends HTMLElement {
   }
 }
 
-export namespace VampireSlot {
-  export enum Events {
-    SlotChange = 'v::slotchange'
-  }
-}
+// export namespace VampireSlot {
+//   export enum Events {
+//     SlotChange = 'v::slotchange'
+//   }
+// }
 
-declare global {
-  interface HTMLElementTagNameMap {
-    [VampireSlot.tagName]: VampireSlot;
-  }
-}
+// declare global {
+//   interface HTMLElementTagNameMap {
+//     [VampireSlot.tagName]: VampireSlot;
+//   }
+// }
 
 customElements.define(VampireSlot.tagName, VampireSlot);

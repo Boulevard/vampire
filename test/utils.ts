@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 function clearElementContent(element: HTMLElement) {
   element.childNodes.forEach(child => element.removeChild(child));
 }
 
 export function noop() {
-
+  // intentionally empty
 }
 
 export function render(parent: HTMLElement, element: Element) {
@@ -21,6 +22,7 @@ export async function scheduleMicroTask<T extends () => any>(task: T = noop): Pr
   await Promise.resolve().then(task);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function template(strings: TemplateStringsArray, ...values: any[]): HTMLTemplateElement {
   return Object.assign(document.createElement('template'), {
     innerHTML: strings.join('')
